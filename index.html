@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Carta interactiva · GitHub Pages</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300,400,600,700&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg0:#07070b;
+      --bg1:#0b0b14;
+      --ink:#f5f2ea;
+      --muted: rgba(245,242,234,.72);
+      --card: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.12);
+      --shadow: 0 24px 90px rgba(0,0,0,.55);
+      --accent:#ff3d8d;
+      --accent2:#49d7ff;
+      --good:#37f2a6;
+      --warn:#ffcc66;
+      --radius: 26px;
+    }
+
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0;
+      color:var(--ink);
+      font-family:"Plus Jakarta Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background:
+        radial-gradient(1100px 700px at 18% 18%, rgba(255,61,141,.16), transparent 60%),
+        radial-gradient(900px 650px at 82% 22%, rgba(73,215,255,.14), transparent 60%),
+        radial-gradient(800px 700px at 50% 105%, rgba(55,242,166,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
+
+    /* Subtle grain */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="160" height="160" filter="url(%23n)" opacity=".18"/></svg>');
+      mix-blend-mode: overlay;
+      opacity:.35;
+    }
+
+    header{
+      padding: clamp(18px, 3.5vw, 34px) clamp(16px, 4.5vw, 48px);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      position:sticky;
+      top:0;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(7,7,11,.85), rgba(7,7,11,.35));
+      border-bottom:1px solid rgba(255,255,255,.08);
+      z-index:10;
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width: 220px;
+    }
+    .mark{
+      width:40px; height:40px; border-radius:14px;
+      background:
+        radial-gradient(14px 14px at 30% 30%, rgba(255,255,255,.22), transparent 60%),
+        radial-gradient(28px 22px at 70% 60%, rgba(255,61,141,.35), transparent 70%),
+        radial-gradient(30px 30px at 30% 70%, rgba(73,215,255,.25), transparent 65%),
+        rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .mark::after{
+      content:"";
+      position:absolute; inset:-30%;
+      background: conic-gradient(from 220deg, rgba(255,61,141,.0), rgba(255,61,141,.26), rgba(73,215,255,.22), rgba(55,242,166,.18), rgba(255,61,141,.0));
+      filter: blur(16px);
+      animation: swirl 10s linear infinite;
+      opacity:.75;
+    }
+    @keyframes swirl{ to{ transform: rotate(360deg);} }
+
+    .brand h1{
+      font-family:"Fraunces", serif;
+      font-size: clamp(18px, 2.1vw, 22px);
+      margin:0;
+      letter-spacing:.2px;
+      font-weight:600;
+    }
+    .brand p{
+      margin:0;
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:.18em;
+      text-transform:uppercase;
+    }
+
+    .top-actions{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      color: rgba(245,242,234,.86);
+      font-size:13px;
+      user-select:none;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:999px;
+      background: var(--warn);
+      box-shadow: 0 0 0 4px rgba(255,204,102,.12);
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.07);
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight:600;
+      font-size:13px;
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      box-shadow: 0 12px 40px rgba(0,0,0,.25);
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.10);
+      border-color: rgba(255,255,255,.22);
+    }
+    .btn:active{ transform: translateY(0px) scale(.99); }
+
+    main{
+      padding: clamp(18px, 4.5vw, 52px);
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: clamp(16px, 3vw, 32px);
+      align-items: start;
+    }
+
+    @media (max-width: 900px){
+      .hero{ grid-template-columns: 1fr; }
+      .brand{ min-width:auto; }
+    }
+
+    .panel{
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(600px 220px at 20% 0%, rgba(255,61,141,.20), transparent 55%),
+        radial-gradient(500px 240px at 90% 20%, rgba(73,215,255,.16), transparent 55%),
+        radial-gradient(600px 260px at 50% 120%, rgba(55,242,166,.12), transparent 60%);
+      pointer-events:none;
+      opacity:.7;
+    }
+
+    .panel-inner{
+      position:relative;
+      padding: clamp(18px, 3.2vw, 28px);
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+    }
+
+    .title{
+      font-family:"Fraunces", serif;
+      font-size: clamp(30px, 4.2vw, 56px);
+      line-height:1.02;
+      margin:0;
+      letter-spacing:-.02em;
+    }
+    .subtitle{
+      margin:0;
+      color: rgba(245,242,234,.78);
+      font-size: clamp(14px, 1.6vw, 17px);
+      line-height:1.6;
+      max-width: 60ch;
+    }
+
+    .steps{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .step{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      padding: 12px 12px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .badge{
+      flex:0 0 auto;
+      width:34px; height:34px; border-radius: 14px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.14);
+      font-weight:800;
+      font-size:13px;
+      color: rgba(245,242,234,.92);
+    }
+    .step strong{
+      display:block;
+      font-size:13px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color: rgba(245,242,234,.84);
+      margin-bottom:2px;
+    }
+    .step span{
+      display:block;
+      font-size: 13.5px;
+      color: rgba(245,242,234,.72);
+      line-height:1.45;
+    }
+
+    .stage{
+      padding: 0;
+      display:flex;
+      flex-direction:column;
+      min-height: 520px;
+    }
+
+    .stage-top{
+      padding: clamp(16px, 2.8vw, 22px);
+      border-bottom:1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .stage-top h2{
+      font-family:"Fraunces", serif;
+      margin:0;
+      font-size: 18px;
+      letter-spacing: .2px;
+      font-weight: 600;
+    }
+
+    .stage-top .hint{
+      margin:0;
+      color: rgba(245,242,234,.70);
+      font-size: 13px;
+    }
+
+    .viewer{
+      position:relative;
+      flex:1;
+      display:grid;
+      place-items:center;
+      padding: clamp(14px, 3vw, 22px);
+    }
+
+    /* “Card” preview area with pattern, no external images */
+    .frame{
+      width: min(440px, 92vw);
+      aspect-ratio: 4/3;
+      border-radius: 28px;
+      background:
+        radial-gradient(18px 18px at 18% 22%, rgba(255,255,255,.18), transparent 60%),
+        radial-gradient(22px 22px at 80% 28%, rgba(255,61,141,.16), transparent 60%),
+        radial-gradient(30px 30px at 54% 84%, rgba(73,215,255,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 28px 90px rgba(0,0,0,.55);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .frame::before{
+      content:"";
+      position:absolute; inset:-40%;
+      background:
+        conic-gradient(from 120deg, rgba(255,61,141,.0), rgba(255,61,141,.18), rgba(73,215,255,.14), rgba(55,242,166,.10), rgba(255,61,141,.0));
+      filter: blur(22px);
+      opacity:.7;
+      animation: floaty 12s ease-in-out infinite;
+    }
+    @keyframes floaty{
+      0%,100%{ transform: translate3d(-1%, -2%, 0) rotate(-6deg); }
+      50%{ transform: translate3d(2%, 1%, 0) rotate(6deg); }
+    }
+
+    .media{
+      position:absolute;
+      inset: 14px;
+      border-radius: 22px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+    }
+
+    /* If user uses GIFs, show <img>. If not, show SVG fallback. */
+    .media img{
+      width:100%;
+      height:100%;
+      object-fit: contain;
+      display:block;
+      background: radial-gradient(400px 260px at 50% 40%, rgba(255,255,255,.06), rgba(0,0,0,.0));
+    }
+
+    .fallback{
+      width: 100%;
+      height: 100%;
+      display:grid;
+      place-items:center;
+      padding: 18px;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      padding: clamp(14px, 2.8vw, 18px);
+      border-top:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.12);
+    }
+
+    .controls .left, .controls .right{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .primary{
+      border-color: rgba(255,61,141,.35);
+      background: linear-gradient(180deg, rgba(255,61,141,.22), rgba(255,61,141,.12));
+      box-shadow: 0 18px 60px rgba(255,61,141,.12), 0 18px 60px rgba(0,0,0,.25);
+    }
+    .primary:hover{
+      border-color: rgba(255,61,141,.55);
+      background: linear-gradient(180deg, rgba(255,61,141,.28), rgba(255,61,141,.14));
+    }
+
+    .ghost{
+      background: rgba(255,255,255,.05);
+    }
+
+    .status{
+      font-size: 12.5px;
+      color: rgba(245,242,234,.78);
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+    }
+
+    .kbd{
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.22);
+      color: rgba(245,242,234,.85);
+    }
+
+    footer{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px clamp(16px, 4.5vw, 48px) 42px;
+      color: rgba(245,242,234,.62);
+      font-size: 13px;
+    }
+
+    /* Staggered reveal */
+    .reveal{
+      opacity:0;
+      transform: translateY(10px);
+      animation: enter .7s cubic-bezier(.2,.8,.2,1) forwards;
+    }
+    .d1{ animation-delay:.06s }
+    .d2{ animation-delay:.14s }
+    .d3{ animation-delay:.22s }
+    .d4{ animation-delay:.30s }
+    @keyframes enter{
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .reveal{ opacity:1; transform:none; animation:none; }
+      .mark::after, .frame::before{ animation:none; }
+      .btn{ transition:none; }
+    }
+
+    a{ color: inherit }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="brand">
+      <div class="mark" aria-hidden="true"></div>
+      <div>
+        <h1>Tu carta interactiva</h1>
+        <p>GIFs + GitHub Pages</p>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <div class="chip" title="Estado de configuración">
+        <span class="dot" id="dot"></span>
+        <span id="cfgText">Sin GIFs aún (modo demo)</span>
+      </div>
+      <button class="btn" id="helpBtn" type="button" aria-haspopup="dialog">Ayuda GitHub Pages</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <article class="panel reveal d1">
+        <div class="panel-inner">
+          <h2 class="title">Haz clic para abrir la carta.</h2>
+          <p class="subtitle">
+            Esta página funciona en <strong>GitHub Pages</strong>. Solo tienes que subir un <code>index.html</code> y tus
+            GIFs en la misma carpeta. Luego habilitas Pages y tendrás una URL pública.
+          </p>
+
+          <div class="steps" aria-label="Pasos rápidos">
+            <div class="step reveal d2">
+              <div class="badge">1</div>
+              <div>
+                <strong>Nombres de archivo</strong>
+                <span>
+                  Pon tus GIFs así: <code>carta-cerrada.gif</code>, <code>carta-abierta.gif</code>, <code>carta-papel.gif</code>.
+                </span>
+              </div>
+            </div>
+            <div class="step reveal d3">
+              <div class="badge">2</div>
+              <div>
+                <strong>Sube a GitHub</strong>
+                <span>
+                  En tu repo, deja <code>index.html</code> + tus GIFs en la raíz (misma carpeta).
+                </span>
+              </div>
+            </div>
+            <div class="step reveal d4">
+              <div class="badge">3</div>
+              <div>
+                <strong>Activa Pages</strong>
+                <span>
+                  Repo → <em>Settings</em> → <em>Pages</em> → Source: <code>Deploy from a branch</code> → Branch: <code>main</code> / folder <code>/root</code>.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+            <button class="btn primary" id="openRepoChecklist" type="button">Checklist de publicación</button>
+            <button class="btn ghost" id="testGifsBtn" type="button">Probar si detecta tus GIFs</button>
+          </div>
+        </div>
+      </article>
+
+      <section class="panel stage reveal d2" aria-label="Visor de la carta">
+        <div class="stage-top">
+          <div>
+            <h2>Visor</h2>
+            <p class="hint">Clic / Barra espaciadora: siguiente · Shift+clic: anterior · R: reiniciar</p>
+          </div>
+          <div class="status" id="status">Estado: demo</div>
+        </div>
+
+        <div class="viewer">
+          <div class="frame" role="group" aria-label="Animación de carta interactiva">
+            <div class="media" id="media">
+              <!-- If GIFs exist, JS will inject an <img>. Otherwise, keep SVG fallback. -->
+              <div class="fallback" id="fallback">
+                <svg viewBox="0 0 900 675" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-label="Demo sin GIFs">
+                  <defs>
+                    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0" stop-color="rgba(255,61,141,.35)"/>
+                      <stop offset="1" stop-color="rgba(73,215,255,.28)"/>
+                    </linearGradient>
+                    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="rgba(0,0,0,.55)"/>
+                    </filter>
+                  </defs>
+
+                  <rect x="38" y="38" width="824" height="599" rx="36" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.12)"/>
+                  <g filter="url(#shadow)">
+                    <path id="env" d="M170 470 L450 260 L730 470 L730 520 Q730 560 690 560 L210 560 Q170 560 170 520 Z"
+                          fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.16)" stroke-width="2"/>
+                    <path d="M170 470 L450 360 L730 470" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="2"/>
+                    <path id="flap" d="M170 470 L450 305 L730 470 L450 515 Z"
+                          fill="url(#g1)" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+                    <rect id="paper" x="260" y="210" width="380" height="290" rx="18"
+                          fill="rgba(245,242,234,.88)" opacity=".0"/>
+                    <g id="lines" opacity="0">
+                      <rect x="300" y="260" width="300" height="12" rx="6" fill="rgba(0,0,0,.18)"/>
+                      <rect x="300" y="295" width="260" height="12" rx="6" fill="rgba(0,0,0,.14)"/>
+                      <rect x="300" y="330" width="280" height="12" rx="6" fill="rgba(0,0,0,.12)"/>
+                      <rect x="300" y="365" width="220" height="12" rx="6" fill="rgba(0,0,0,.12)"/>
+                    </g>
+                  </g>
+
+                  <text x="450" y="120" text-anchor="middle" fill="rgba(245,242,234,.78)" font-family="Plus Jakarta Sans, sans-serif" font-size="28">
+                    Sube tus GIFs para ver tu carta real
+                  </text>
+                  <text x="450" y="156" text-anchor="middle" fill="rgba(245,242,234,.55)" font-family="Plus Jakarta Sans, sans-serif" font-size="18">
+                    (este es un modo demo sin archivos)
+                  </text>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls" aria-label="Controles">
+          <div class="left">
+            <button class="btn primary" id="nextBtn" type="button">Siguiente estado</button>
+            <button class="btn ghost" id="prevBtn" type="button">Anterior</button>
+            <button class="btn ghost" id="resetBtn" type="button">Reiniciar</button>
+          </div>
+          <div class="right">
+            <span class="kbd">Click</span>
+            <span class="kbd">Space</span>
+            <span class="kbd">R</span>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <div style="border-top:1px solid rgba(255,255,255,.10); padding-top:16px;">
+      <p style="margin:0 0 8px 0;">
+        Si GitHub Pages “no te sale”, casi siempre es por: nombre de archivo distinto, branch incorrecta, o no esperar 1–3 minutos a que publique.
+      </p>
+      <p style="margin:0; opacity:.9;">
+        Dime: <strong>tu nombre de usuario</strong>, <strong>nombre del repositorio</strong> y si es un repo nuevo, y te digo la URL exacta que deberías ver.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Dialogs -->
+  <dialog id="helpDialog" style="
+    border:1px solid rgba(255,255,255,.14);
+    border-radius: 18px;
+    background: rgba(10,10,18,.92);
+    color: var(--ink);
+    box-shadow: 0 30px 120px rgba(0,0,0,.65);
+    width: min(760px, 92vw);
+  ">
+    <form method="dialog" style="padding:18px 18px 14px 18px;">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+        <div>
+          <h3 style="font-family:Fraunces, serif; margin:0 0 6px 0;">Cómo publicar en GitHub Pages (paso a paso)</h3>
+          <p style="margin:0; color:rgba(245,242,234,.75); line-height:1.55;">
+            Esto te deja una URL pública que muestra tu carta y permite abrirla con clic.
+          </p>
+        </div>
+        <button class="btn" value="cancel" aria-label="Cerrar">Cerrar</button>
+      </div>
+
+      <div style="margin-top:14px; display:grid; gap:10px;">
+        <div class="step">
+          <div class="badge">A</div>
+          <div>
+            <strong>Prepara archivos</strong>
+            <span>
+              Crea una carpeta en tu PC con: <code>index.html</code> + tus GIFs.
+              Nombres recomendados: <code>carta-cerrada.gif</code>, <code>carta-abierta.gif</code>, <code>carta-papel.gif</code>.
+            </span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="badge">B</div>
+          <div>
+            <strong>Sube al repo</strong>
+            <span>
+              En GitHub: entra al repositorio → <em>Add file</em> → <em>Upload files</em>.
+              Sube <code>index.html</code> y los GIFs (arrástralos).
+              Luego <em>Commit changes</em>.
+            </span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="badge">C</div>
+          <div>
+            <strong>Activa Pages</strong>
+            <span>
+              Repo → <em>Settings</em> → <em>Pages</em>:
+              <br>• Source: <code>Deploy from a branch</code>
+              <br>• Branch: <code>main</code>
+              <br>• Folder: <code>/ (root)</code>
+              <br>Guarda. Espera 1–3 minutos.
+            </span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="badge">D</div>
+          <div>
+            <strong>Tu URL</strong>
+            <span>
+              Normalmente queda así:
+              <br><code>https://TUUSUARIO.github.io/NOMBRE-REPO/</code>
+              <br>
+              Si el repo se llama <code>TUUSUARIO.github.io</code>, entonces:
+              <br><code>https://TUUSUARIO.github.io/</code>
+            </span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="badge">E</div>
+          <div>
+            <strong>Errores comunes</strong>
+            <span>
+              • El archivo debe llamarse exactamente <code>index.html</code> (minúsculas).
+              <br>• Los GIFs deben estar en la misma carpeta (root) o ajustar rutas.
+              <br>• Verifica que el branch sea <code>main</code> (o <code>master</code> si tu repo usa ese).
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:14px;">
+        <button class="btn ghost" id="copyChecklist" type="button">Copiar checklist</button>
+        <button class="btn primary" value="default">Listo</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    // === CONFIG: expected filenames (put these in the same folder as index.html) ===
+    const STATES = [
+      { key: "cerrada", label: "Carta cerrada", file: "carta-cerrada.gif" },
+      { key: "abierta", label: "Carta abierta (con papel)", file: "carta-abierta.gif" },
+      { key: "papel",   label: "Mostrando el papel", file: "carta-papel.gif" }
+    ];
+
+    const elStatus = document.getElementById("status");
+    const elCfgText = document.getElementById("cfgText");
+    const elDot = document.getElementById("dot");
+    const media = document.getElementById("media");
+    const fallback = document.getElementById("fallback");
+
+    const nextBtn = document.getElementById("nextBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const helpBtn = document.getElementById("helpBtn");
+    const helpDialog = document.getElementById("helpDialog");
+    const openRepoChecklist = document.getElementById("openRepoChecklist");
+    const testGifsBtn = document.getElementById("testGifsBtn");
+    const copyChecklist = document.getElementById("copyChecklist");
+
+    let idx = 0;
+    let imgEl = null;
+    let usingGifs = false;
+
+    function setStatus(text){
+      elStatus.textContent = "Estado: " + text;
+    }
+
+    function ensureImg(){
+      if (!imgEl){
+        imgEl = document.createElement("img");
+        imgEl.alt = STATES[idx].label;
+        imgEl.decoding = "async";
+        imgEl.loading = "eager";
+        imgEl.style.opacity = "0";
+        imgEl.style.transform = "translateY(4px) scale(.995)";
+        imgEl.style.transition = "opacity .22s ease, transform .22s ease";
+        imgEl.addEventListener("load", () => {
+          imgEl.style.opacity = "1";
+          imgEl.style.transform = "translateY(0) scale(1)";
+        });
+        imgEl.addEventListener("error", () => {
+          // If a file is missing, fallback
+          usingGifs = false;
+          setDemoMode("No se encontró: " + STATES[idx].file);
+        });
+        media.appendChild(imgEl);
+      }
+      return imgEl;
+    }
+
+    function setDemoMode(reason){
+      elDot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--warn');
+      elDot.style.boxShadow = "0 0 0 4px rgba(255,204,102,.12)";
+      elCfgText.textContent = reason ? ("Modo demo · " + reason) : "Sin GIFs aún (modo demo)";
+      setStatus("demo");
+      if (imgEl) imgEl.remove(), imgEl = null;
+      fallback.style.display = "grid";
+      usingGifs = false;
+      // animate demo svg states a bit
+      animateDemoState(idx);
+    }
+
+    function setGifsMode(){
+      elDot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--good');
+      elDot.style.boxShadow = "0 0 0 4px rgba(55,242,166,.14)";
+      elCfgText.textContent = "GIFs detectados · listo para publicar";
+      setStatus(STATES[idx].label);
+      fallback.style.display = "none";
+      usingGifs = true;
+      render();
+    }
+
+    function render(){
+      if (!usingGifs) { animateDemoState(idx); return; }
+      const img = ensureImg();
+      img.alt = STATES[idx].label;
+      img.style.opacity = "0";
+      img.style.transform = "translateY(4px) scale(.995)";
+      // Cache-bust to replay GIF in some browsers if needed:
+      const url = STATES[idx].file + "?v=" + Date.now();
+      img.src = url;
+      setStatus(STATES[idx].label);
+    }
+
+    function next(){
+      idx = (idx + 1) % STATES.length;
+      render();
+    }
+    function prev(){
+      idx = (idx - 1 + STATES.length) % STATES.length;
+      render();
+    }
+    function reset(){
+      idx = 0;
+      render();
+    }
+
+    // Click interactions
+    document.querySelector(".frame").addEventListener("click", (e) => {
+      if (e.shiftKey) prev();
+      else next();
+    });
+
+    nextBtn.addEventListener("click", next);
+    prevBtn.addEventListener("click", prev);
+    resetBtn.addEventListener("click", reset);
+
+    // Keyboard shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") { e.preventDefault(); next(); }
+      if (e.key.toLowerCase() === "r") reset();
+      if (e.key === "ArrowRight") next();
+      if (e.key === "ArrowLeft") prev();
+    });
+
+    // Help dialog
+    helpBtn.addEventListener("click", () => helpDialog.showModal());
+    openRepoChecklist.addEventListener("click", () => helpDialog.showModal());
+
+    copyChecklist.addEventListener("click", async () => {
+      const text =
+`CHECKLIST GitHub Pages:
+1) index.html (minúsculas) en la raíz del repo
+2) GIFs en la misma carpeta:
+   - carta-cerrada.gif
+   - carta-abierta.gif
+   - carta-papel.gif
+3) Repo > Settings > Pages
+   - Source: Deploy from a branch
+   - Branch: main
+   - Folder: / (root)
+4) Espera 1–3 minutos
+5) URL: https://TUUSUARIO.github.io/NOMBRE-REPO/`;
+      try{
+        await navigator.clipboard.writeText(text);
+        copyChecklist.textContent = "Copiado";
+        setTimeout(()=> copyChecklist.textContent = "Copiar checklist", 900);
+      }catch{
+        copyChecklist.textContent = "No se pudo copiar";
+        setTimeout(()=> copyChecklist.textContent = "Copiar checklist", 1100);
+      }
+    });
+
+    // Detect if GIFs exist in same folder
+    async function fileExists(path){
+      try{
+        const res = await fetch(path, { method: "HEAD", cache: "no-store" });
+        return res.ok;
+      }catch{
+        return false;
+      }
+    }
+
+    async function detectGifs(){
+      // If running from file://, HEAD fetch can fail. We'll try GET fallback.
+      let okCount = 0;
+
+      for (const s of STATES){
+        let ok = await fileExists(s.file);
+        if (!ok){
+          try{
+            const res = await fetch(s.file, { method: "GET", cache: "no-store" });
+            ok = res.ok;
+          }catch{
+            ok = false;
+          }
+        }
+        if (ok) okCount++;
+      }
+
+      if (okCount === STATES.length){
+        setGifsMode();
+      }else{
+        setDemoMode("Faltan GIFs o rutas (encontrados " + okCount + "/" + STATES.length + ")");
+      }
+    }
+
+    testGifsBtn.addEventListener("click", detectGifs);
+
+    // Demo envelope animation: tweak SVG elements if present
+    function animateDemoState(stateIndex){
+      const svg = fallback.querySelector("svg");
+      if (!svg) return;
+      const flap = svg.querySelector("#flap");
+      const paper = svg.querySelector("#paper");
+      const lines = svg.querySelector("#lines");
+      if (!flap || !paper || !lines) return;
+
+      // State 0: closed
+      // State 1: open with paper a bit
+      // State 2: paper shown
+      const t = [
+        { flapRot: 0, paperY: 210, paperOp: 0.0, linesOp: 0.0 },
+        { flapRot: -28, paperY: 170, paperOp: 0.85, linesOp: 0.0 },
+        { flapRot: -32, paperY: 120, paperOp: 0.95, linesOp: 1.0 }
+      ][stateIndex] || { flapRot: 0, paperY: 210, paperOp: 0.0, linesOp: 0.0 };
+
+      flap.style.transition = "transform .35s cubic-bezier(.2,.8,.2,1)";
+      flap.style.transformOrigin = "450px 470px";
+      flap.style.transform = "rotate(" + t.flapRot + "deg)";
+
+      paper.style.transition = "opacity .35s ease, transform .35s cubic-bezier(.2,.8,.2,1)";
+      paper.style.opacity = String(t.paperOp);
+      paper.style.transform = "translateY(" + (t.paperY - 210) + "px)";
+
+      lines.style.transition = "opacity .35s ease";
+      lines.style.opacity = String(t.linesOp);
+
+      setStatus(["carta cerrada (demo)","carta abierta (demo)","papel (demo)"][stateIndex] || "demo");
+    }
+
+    // On load: try detect gifs
+    detectGifs();
+  </script>
+</body>
+</html>
