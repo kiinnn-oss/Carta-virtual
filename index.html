@@ -64,6 +64,46 @@
       user-select: none;
     }
 
+    /* Flecha y texto "dale click!" */
+    .click-indicator {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 8px;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .arrow {
+      font-size: 28px;
+      color: var(--accent);
+      animation: bounce 1.5s infinite ease-in-out;
+      margin-right: 8px;
+      transform: translateY(0);
+    }
+
+    .click-text {
+      font-family: "Fraunces", serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--accent);
+      text-transform: lowercase;
+      letter-spacing: 0.05em;
+      animation: pulse 2s infinite ease-in-out;
+      align-self: center;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
     .frame {
       width: 100%;
       aspect-ratio: 4 / 3;
@@ -157,6 +197,11 @@
 
   <div class="container" role="main" aria-label="Carta interactiva">
     <h1>Tu carta especial</h1>
+
+    <div class="click-indicator" aria-hidden="true">
+      <div class="arrow">➔</div>
+      <div class="click-text">dale click!</div>
+    </div>
 
     <div class="frame" id="frame" tabindex="0" aria-live="polite" aria-label="Carta interactiva. Haz clic para abrir y cerrar">
       <img id="cardImage" src="carta-cerrada.gif" alt="Carta cerrada" />
